@@ -64,7 +64,7 @@ jobs:
         run: |
           python3 -m unittest discover -s deploy/migration-test -p "test_*.py"
           python3 -m unittest discover -s deploy/local-dev -p "test_*.py"
-          node --test .github/scripts/release-record.test.mjs
+          node --test .github/scripts/release-record.test.mjs .github/scripts/lint-changed.test.mjs
       - name: Build shared packages
         run: npx nx run-many -t build -p twenty-shared twenty-ui
       - name: Typecheck affected

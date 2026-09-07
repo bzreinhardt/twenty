@@ -92,8 +92,44 @@ Never edit the `up` or `down` of an instance command that is already on `main`.
 
 ## Step 3: verify locally
 
-Run all of these. Report the actual output; do not summarize a failure as a
-pass.
+Run the four frontend/server lint and typecheck targets together:
+
+```bash
+yarn check:local
+```
+
+This uses one Nx task graph, schedules shared dependency builds once, retains
+Nx's cache, and limits concurrency to two tasks. Use `--parallel 1` when other
+worktrees are already doing heavy checks. `node deploy/local-check.mjs --plan`
+prints the command and resolved comparison base without running checks or needing
+installed dependencies. These static checks do not need Docker or a database
+setup/reset.
+
+The wrapper also removes inherited `NO_COLOR` for this invocation. Nx sets
+`FORCE_COLOR` in its children; with both variables present, Node's warning can
+leave the shared barrel generator's synchronous Prettier workers hanging.
+If an individual Nx command stalls at `twenty-shared:generateBarrels` with a
+`NO_COLOR`/`FORCE_COLOR` warning, use `env -u NO_COLOR npx nx ...` for that command.
+The wrapper does not suppress Node warnings or modify your shell environment.
+
+Changed-file lint includes committed, staged, unstaged and untracked source
+files. It compares with the merge base of fetched `origin/main` (local `main`
+only if that remote ref is absent). Fetch at the start of a task; the check does
+not access the network to refresh refs. Use `yarn check:local --base <ref>` for
+another branch base, or `TWENTY_LINT_BASE=<ref>` with the individual Nx targets.
+Missing refs and Git errors fail the check.
+
+The combined command replaces only the four static checks below. Still run
+focused tests for the changed behavior from the package directory, and perform
+the UI and migration verification required for the change. For changes to
+other packages, also run their relevant checks. Do not start the full server or
+rebuild a release image just to run isolated utility tests. After checks pass,
+rerun them only for further changes or a diagnosed failure; proceed to commit,
+push and exact-commit CI follow-through.
+
+Alternatively, run the four static targets individually using the commands
+below. Always run the relevant focused tests as well. Report the actual output;
+do not summarize a failure as a pass.
 
 ```bash
 npx nx lint:diff-with-main twenty-server

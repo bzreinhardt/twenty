@@ -126,6 +126,13 @@ delete confidential snapshots/logs when they are no longer needed.
 
 ## Boundaries and release checks
 
+For source verification, run `yarn check:local` in this worktree. It groups the
+frontend/server changed-file lint and full typechecks into one Nx invocation
+with shared dependency builds and two concurrent tasks. Use `--parallel 1` if
+another worktree is compiling. No database reset or image build is needed for
+these checks. See [LLM-LOCAL-DEV.md](LLM-LOCAL-DEV.md) for the remaining focused
+tests, dataset requirements and migration checks.
+
 The supervisor supplies a fresh environment and disables dotenv loading in Nx,
 Vite, Nest, both TypeORM sources and frontend runtime configuration. Existing
 shell variables or `.env` files cannot redirect this workflow to other services.
