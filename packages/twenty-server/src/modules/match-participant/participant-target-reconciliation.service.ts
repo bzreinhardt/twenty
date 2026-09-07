@@ -20,7 +20,9 @@ import {
   type ExistingTarget,
   type TargetIdentity,
 } from 'src/modules/match-participant/utils/compute-target-reconciliation-operations.util';
+import { type OpportunityContactWorkspaceEntity } from 'src/modules/opportunity/standard-objects/opportunity-contact.workspace-entity';
 import { type OpportunityWorkspaceEntity } from 'src/modules/opportunity/standard-objects/opportunity.workspace-entity';
+import { groupOpportunityIdsByContact } from 'src/modules/opportunity/utils/group-opportunity-ids-by-contact.util';
 import { type PersonWorkspaceEntity } from 'src/modules/person/standard-objects/person.workspace-entity';
 
 type TargetParentFieldName = 'calendarEventId' | 'messageThreadId';
@@ -250,10 +252,8 @@ export class ParticipantTargetReconciliationService {
       return;
     }
 
-    // Existing workspaces only gain the target junction objects once the
-    // upgrade metadata sync has run; until then reconciliation must no-op so
-    // message and calendar imports keep succeeding. The backfill that follows
-    // the sync covers rows imported during that window.
+    // Keep imports working before target metadata is provisioned; the upgrade
+    // backfill covers rows imported during that window.
     if (
       !isDefined(getWorkspaceContext().objectIdByNameSingular[targetObjectName])
     ) {
@@ -377,31 +377,40 @@ export class ParticipantTargetReconciliationService {
       people.map(({ id, companyId }) => [id, companyId]),
     );
 
+    const additionalContacts = isDefined(
+      getWorkspaceContext().objectIdByNameSingular.opportunityContact,
+    )
+      ? await (
+          await this.getRepository<OpportunityContactWorkspaceEntity>(
+            'opportunityContact',
+            transactionScope,
+          )
+        ).find({
+          where: { personId: In(personIds) },
+          select: { opportunityId: true, personId: true },
+        })
+      : [];
+    const additionalOpportunityIds = [
+      ...new Set(additionalContacts.map(({ opportunityId }) => opportunityId)),
+    ];
     const opportunityRepository =
       await this.getRepository<OpportunityWorkspaceEntity>(
         'opportunity',
         transactionScope,
       );
     const opportunities = await opportunityRepository.find({
-      where: { pointOfContactId: In(personIds) },
+      where: [
+        { pointOfContactId: In(personIds) },
+        ...(additionalOpportunityIds.length > 0
+          ? [{ id: In(additionalOpportunityIds) }]
+          : []),
+      ],
       select: { id: true, pointOfContactId: true },
     });
-    const opportunityIdsByPersonId = new Map<string, string[]>();
-
-    for (const opportunity of opportunities) {
-      if (!isDefined(opportunity.pointOfContactId)) {
-        continue;
-      }
-
-      const opportunityIds =
-        opportunityIdsByPersonId.get(opportunity.pointOfContactId) ?? [];
-
-      opportunityIds.push(opportunity.id);
-      opportunityIdsByPersonId.set(
-        opportunity.pointOfContactId,
-        opportunityIds,
-      );
-    }
+    const opportunityIdsByPersonId = groupOpportunityIdsByContact({
+      opportunities,
+      additionalContacts,
+    });
 
     return parentIds.flatMap((parentId) =>
       [...(participantPersonIdsByParentId.get(parentId) ?? [])].flatMap(

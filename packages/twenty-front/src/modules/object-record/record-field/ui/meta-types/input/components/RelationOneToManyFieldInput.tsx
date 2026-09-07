@@ -16,6 +16,7 @@ import { type FieldRelationMetadata } from '@/object-record/record-field/ui/type
 import { MultipleRecordPicker } from '@/object-record/record-picker/multiple-record-picker/components/MultipleRecordPicker';
 import { useAvailableComponentInstanceIdOrThrow } from '@/ui/utilities/state/component-state/hooks/useAvailableComponentInstanceIdOrThrow';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
+import { CoreObjectNameSingular } from 'twenty-shared/types';
 import { CustomError, isDefined } from 'twenty-shared/utils';
 
 export const RelationOneToManyFieldInput = () => {
@@ -145,9 +146,13 @@ export const RelationOneToManyFieldInput = () => {
             morphItem,
           });
 
-          // Picking a target writes a whole junction row, so the action is
-          // done. Deselecting stays open so the removal can be undone.
-          if (morphItem.isSelected) {
+          // Opportunity contact lists must allow several selections in one
+          // session. Other junction pickers retain their existing behavior.
+          if (
+            morphItem.isSelected &&
+            relationObjectMetadataItem.nameSingular !==
+              CoreObjectNameSingular.OpportunityContact
+          ) {
             handleSubmit();
           }
         } else {

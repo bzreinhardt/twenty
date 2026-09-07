@@ -50,17 +50,17 @@ Then confirm the schema matches the checked-out commit:
 bash deploy/local-schema.sh check
 ```
 
-## Step 1: choose a dataset
+## Step 1: always develop against the mirror
 
-| Change | Dataset | Command |
-|---|---|---|
-| UI, copy, frontend state, isolated utilities | fixture | `bash deploy/local-data.sh seed` |
-| Entities, instance commands, workspace upgrades, views, search, permissions, anything with a migration | mirror | `bash deploy/local-data.sh mirror` |
+Use a verified development mirror for **all local feature work and user
+acceptance testing**, including UI, copy, and frontend state. The CRM has
+custom fields, layouts, views, and seven custom objects that a synthetic
+fixture cannot exercise. Check the running dataset before investigating a bug
+or handing Ben a URL. Do not silently substitute a fixture when mirror access
+is unavailable; report what is missing.
 
-The fixture has only Twenty's standard objects. The workspace this fork serves
-has seven custom objects and about 150 custom fields on top of them, so a
-migration that looks correct against the fixture can still fail in production.
-When in doubt, use the mirror.
+For isolated worktrees use the saved mirror through `deploy/LOCAL-DEV.md`.
+For the standard developer checkout:
 
 ```bash
 bash deploy/local-data.sh mirror
@@ -137,7 +137,10 @@ State what changed and why, how it was tested, whether it touches the database,
 environment variables, permissions, integrations or jobs, and how to roll back.
 Attach screenshots for visible UI changes.
 
-Take those screenshots against the fixture, not the mirror. Mirror screenshots
+Use a separate synthetic fixture session for those screenshots, then resume
+and verify the mirror before handing over the local URL. Fixtures also remain
+required for CI and clean-initialization checks. Take screenshots against the
+fixture, not the mirror. Mirror screenshots
 contain real names, companies, and notes, and a pull request is a permanent
 public-to-the-team record.
 
@@ -214,6 +217,39 @@ and the counts, not the rows.
 
 Report failures with the command and its real output. A silently skipped
 verification step is worse than a failed one.
+
+## Keep the development loop short
+
+- Confirm worktree, branch, dataset, URL and running supervisor once. Keep a
+  private handoff under `deploy/.local-dev/` with that state and check results;
+  never put credentials or mirror rows in user-facing output.
+- Reuse the frozen mirror and running source watchers. Ordinary source edits
+  need hot reload, not a Docker image build, data refresh, or deployment.
+  Restore the baseline when testing an edited migration; keep it fixed during
+  that repair. Preserve any local user edits before replacing the database.
+- Inspect metadata relationships before assuming a missing control is a browser
+  timing problem. Old workspaces may retain legacy standard identifiers;
+  fixture identifiers and default layouts are not evidence for their shape.
+- Save a reusable browser check early. Exercise the actual user action on the
+  mirror: add two contacts, reload, remove one, and verify the other and primary
+  contact survive. Keep mirror screenshots, responses and names out of output.
+- Run focused behavior tests and required diff lint/typechecks while iterating.
+  Format changed source with `oxfmt`; also lint new, uncommitted files directly,
+  because `lint:diff-with-main` only considers committed changes. Use the
+  migration formatter convention for new upgrade commands, which are excluded
+  from the general formatter to protect committed commands.
+  For built-in layout changes, also run `standard-metadata-label-catalog.spec.ts`
+  and the affected layout snapshot test. Plain-string widget titles require a
+  matching literal in the widget-title catalog before Lingui can extract them.
+  Batch independent reads/checks; keep database mutations and source builds
+  sequential. Run the final image rehearsals and exact-commit CI after the
+  coherent change is ready. Repeat checks only for changed code or new failures.
+- Read `timings.json` and the named phase log when startup is slow. Report the
+  phase being checked instead of repeatedly polling an unchanged browser.
+- Finish shared-package builds and typechecks before browser acceptance tests;
+  replacing shared bundles during a browser run can trigger a full reload.
+- Before returning a local testing link, confirm the mirror is running, sign-in
+  works, the changed control is visible, and the requested interaction persists.
 
 ## Exact-commit follow-through
 

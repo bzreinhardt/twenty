@@ -449,6 +449,39 @@ export const buildPersonStandardFlatFieldMetadatas = ({
     twentyStandardApplicationId,
     now,
   }),
+  additionalOpportunities: createStandardRelationFieldFlatMetadata({
+    objectName,
+    workspaceId,
+    standardObjectMetadataRelatedEntityIds,
+    dependencyFlatEntityMaps,
+    twentyStandardApplicationId,
+    now,
+    context: {
+      type: FieldMetadataType.RELATION,
+      morphId: null,
+      fieldName: 'additionalOpportunities',
+      label: i18nLabel(
+        msg({
+          message: `Opportunities`,
+          context: 'fieldMetadata.label',
+        }),
+      ),
+      description: i18nLabel(
+        msg({
+          message: `Linked opportunities, including those where this person is the primary point of contact.`,
+          context: 'fieldMetadata.description',
+        }),
+      ),
+      icon: 'IconUsersGroup',
+      isNullable: true,
+      targetObjectName: 'opportunityContact',
+      targetFieldName: 'person',
+      junctionTargetFieldUniversalIdentifier:
+        STANDARD_OBJECTS.opportunityContact.fields.opportunity
+          .universalIdentifier,
+      settings: { relationType: RelationType.ONE_TO_MANY },
+    },
+  }),
   pointOfContactForOpportunities: createStandardRelationFieldFlatMetadata({
     objectName,
     workspaceId,
@@ -457,11 +490,11 @@ export const buildPersonStandardFlatFieldMetadatas = ({
       morphId: null,
       fieldName: 'pointOfContactForOpportunities',
       label: i18nLabel(
-        msg({ message: `Opportunities`, context: 'fieldMetadata.label' }),
+        msg({ message: `Primary contact for`, context: 'fieldMetadata.label' }),
       ),
       description: i18nLabel(
         msg({
-          message: `List of opportunities for which that person is the point of contact`,
+          message: `Opportunities for which this person is the primary point of contact`,
           context: 'fieldMetadata.description',
         }),
       ),

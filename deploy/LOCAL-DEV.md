@@ -14,24 +14,17 @@ A **saved starting database**, called a baseline by the migration tool, is a
 snapshot of both the records and schema before your change. Resetting restores
 that exact snapshot, including the record of which migrations already ran.
 
-- **Fixture:** invented people, companies and other example records. Use this
-  for frontend iteration and screenshots. It has Twenty's standard objects.
-- **Mirror:** a verified, scrubbed copy of the CRM, including this fork's seven
-  custom objects, custom fields and views. Use this for database, search,
-  permissions and custom-object work. It still contains confidential records.
-  Application runtime variables (including non-secret encrypted values) are
-  removed along with credentials; configure any test integration separately
-  with developer-owned values. Version 1 mirrors must be rebuilt with the
-  current publisher before use.
+Always use a **mirror** for local development and user testing, including UI
+changes. It is a verified, scrubbed copy of the CRM with this fork's custom
+layouts, fields, views and seven custom objects. It still contains confidential
+records. Application runtime variables are removed along with credentials;
+configure any test integration separately with developer-owned values. Version
+1 mirrors must be rebuilt with the current publisher before use.
 
-Create a fixture snapshot with the existing baseline tool:
-
-```bash
-bash deploy/migration-test.sh freeze \
-  --baseline deploy/.migration-tests/baselines/fixture \
-  --source-sha "$(jq -r .source_sha deploy/migration-baseline.json)" \
-  --image "$(jq -r .image deploy/migration-baseline.json)"
-```
+Synthetic **fixtures** are reserved for CI, clean-initialization checks, and
+shareable screenshots. The local launcher requires an explicit `--fixture`
+flag for those sessions, including when resuming one. Never hand a fixture URL
+to the user as the CRM test environment. Return to the mirror after screenshots.
 
 For a mirror, obtain a verified dump through the approved developer data
 workflow in [DEVELOPMENT.md](DEVELOPMENT.md). Freeze it using the full source
@@ -45,16 +38,19 @@ bash deploy/migration-test.sh freeze \
 
 Verification runs before application code touches the restored mirror. A raw
 production dump is not accepted. If approved backup access or a verified dump
-is unavailable, the fixture works for UI development, but cannot certify the
-CRM's custom schema. Refresh into a **new** snapshot directory when needed;
+is unavailable, report the missing access; do not substitute synthetic data for
+local user testing. Refresh into a **new** snapshot directory when needed;
 keep the snapshot fixed while iterating on a migration.
 
 ## Start, edit, repeat
 
 ```bash
 bash deploy/local-dev.sh start \
-  --baseline deploy/.migration-tests/baselines/fixture
+  --baseline deploy/.migration-tests/baselines/mirror
 ```
+
+Sign in with a mirrored CRM account and the local password `devmirror`. The
+banner must say `local mirror`. These local changes do not affect production.
 
 The first start restores the snapshot, builds the server and its dependencies,
 and applies the current branch's migrations. It then starts Vite, one Nest
@@ -117,6 +113,12 @@ To switch to a mirror or a fresh snapshot:
 bash deploy/local-dev.sh reset --baseline <new-snapshot-directory>
 ```
 
+For a synthetic screenshot session only, create a fixture with the baseline
+commands in [MIGRATION-TESTING.md](MIGRATION-TESTING.md), then use
+`reset --baseline <fixture-directory> --fixture`. Keep its records out of the
+mirror, and switch back with `reset --baseline <mirror-directory>` before
+handing off local testing. Preserve local user edits before any reset.
+
 Use `bash deploy/local-dev.sh status` to see the dataset, checksum
 and URL. Use `bash deploy/local-dev.sh down` to remove this worktree's database,
 queues and uploads. This retains the saved snapshot and private diagnostics;
@@ -143,3 +145,14 @@ lint/typechecks, clean initialization and mirror verification. Run the frozen
 baseline image rehearsal in [MIGRATION-TESTING.md](MIGRATION-TESTING.md) for
 migration changes. Staging remains the final check of the actual release image;
 it is not needed for every frontend or database experiment.
+
+## Faster feedback
+
+Keep the mirror and source watchers running for ordinary edits. Refreshing data,
+rebuilding a release image, and deploying are separate from the daily edit loop.
+Run focused behavior tests and required diff lint/typechecks first; build and
+rehearse the final image once the coherent change is ready. Consult private
+`timings.json` and phase logs before retrying a slow command. Keep reusable
+browser checks and the current branch/baseline/check status under the ignored
+`deploy/.local-dev/` directory so the next session can continue without
+rediscovering the environment. Never save mirror screenshots as test evidence.

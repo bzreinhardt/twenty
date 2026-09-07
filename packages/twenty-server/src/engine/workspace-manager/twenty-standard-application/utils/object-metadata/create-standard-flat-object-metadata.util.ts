@@ -865,6 +865,45 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       twentyStandardApplicationId,
       now,
     }),
+  opportunityContact: (
+    args: Omit<
+      CreateStandardObjectArgs<'opportunityContact'>,
+      'context' | 'objectName'
+    >,
+  ) =>
+    createStandardObjectFlatMetadata({
+      ...args,
+      objectName: 'opportunityContact',
+      context: {
+        universalIdentifier:
+          STANDARD_OBJECTS.opportunityContact.universalIdentifier,
+        nameSingular: 'opportunityContact',
+        namePlural: 'opportunityContacts',
+        labelSingular: i18nLabel(
+          msg({
+            message: `Opportunity contact`,
+            context: 'objectMetadata.labelSingular',
+          }),
+        ),
+        labelPlural: i18nLabel(
+          msg({
+            message: `Opportunity contacts`,
+            context: 'objectMetadata.labelPlural',
+          }),
+        ),
+        description: i18nLabel(
+          msg({
+            message: `An additional point of contact for an opportunity. Create one link per person without replacing the primary point of contact.`,
+            context: 'objectMetadata.description',
+          }),
+        ),
+        icon: 'IconUsersGroup',
+        isSystem: true,
+        isAuditLogged: true,
+        isUICreatable: false,
+        labelIdentifierFieldMetadataName: 'id',
+      },
+    }),
   opportunity: ({
     now,
     workspaceId,

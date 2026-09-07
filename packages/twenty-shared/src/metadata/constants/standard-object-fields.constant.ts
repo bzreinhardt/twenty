@@ -869,7 +869,19 @@ export const STANDARD_OBJECT_FIELDS = {
       }),
     },
   },
+  opportunityContact: {
+    ...buildStandardObjectSystemFields(
+      STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.opportunityContact,
+    ),
+    opportunity: {
+      universalIdentifier: 'eebf2942-bdfd-4111-9f2e-4d3b7ac61e5c',
+    },
+    person: { universalIdentifier: '580276af-691c-4813-90c9-7df90e50e6f7' },
+  },
   opportunity: {
+    additionalContacts: {
+      universalIdentifier: '52c1adec-64cc-4aa7-adcf-e7c8c108ac9f',
+    },
     ...buildStandardObjectSystemFields(
       STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.opportunity,
     ),
@@ -946,6 +958,9 @@ export const STANDARD_OBJECT_FIELDS = {
     },
   },
   person: {
+    additionalOpportunities: {
+      universalIdentifier: '172384a3-c8b4-4200-a499-0d30288022f1',
+    },
     ...buildStandardObjectSystemFields(
       STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.person,
     ),

@@ -9,6 +9,7 @@ import { getObjectTypename } from '@/object-record/cache/utils/getObjectTypename
 import { getRecordFromRecordNode } from '@/object-record/cache/utils/getRecordFromRecordNode';
 import { useCreateManyRecords } from '@/object-record/hooks/useCreateManyRecords';
 import { useDeleteOneRecord } from '@/object-record/hooks/useDeleteOneRecord';
+import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
 import { type FieldDefinition } from '@/object-record/record-field/ui/types/FieldDefinition';
 import {
   type FieldRelationFromManyValue,
@@ -68,6 +69,7 @@ export const useUpdateJunctionRelationFromCell = ({
   const { deleteOneRecord: deleteJunctionRecord } = useDeleteOneRecord({
     objectNameSingular: junctionObjectNameSingular,
   });
+  const { updateOneRecord } = useUpdateOneRecord();
 
   const store = useStore();
   const updateJunctionRelationFromCell = useCallback(
@@ -126,6 +128,29 @@ export const useUpdateJunctionRelationFromCell = ({
 
       // morphItem.isSelected represents the NEW state (what the user wants)
       if (!morphItem.isSelected) {
+        // The unified contact picker also contains the legacy primary
+        // relationship, which may have no physical junction to delete.
+        if (junctionObjectName === 'opportunityContact') {
+          const opportunityId =
+            sourceObjectMetadata.nameSingular === 'opportunity'
+              ? recordId
+              : morphItem.recordId;
+          const isPrimary =
+            sourceObjectMetadata.nameSingular === 'opportunity'
+              ? recordFromStore?.pointOfContactId === morphItem.recordId
+              : recordFromStore?.pointOfContactForOpportunities?.some(
+                  (opportunity: ObjectRecord) =>
+                    opportunity.id === opportunityId,
+                );
+          if (isPrimary) {
+            await updateOneRecord({
+              objectNameSingular: 'opportunity',
+              idToUpdate: opportunityId,
+              updateOneRecordInput: { pointOfContactId: null },
+            });
+          }
+        }
+
         const junctionRecordToDelete = findJunctionRecordByTargetId({
           junctionRecords: currentJunctionRecords,
           targetRecordId: morphItem.recordId,
@@ -173,11 +198,20 @@ export const useUpdateJunctionRelationFromCell = ({
           searchRecordStoreFamilyState.atomFamily(morphItem.recordId),
         );
 
-        if (!isDefined(searchRecord?.record)) {
+        const targetObjectMetadata = objectMetadataItems.find(
+          (object) => object.id === morphItem.objectMetadataId,
+        );
+
+        if (!isDefined(searchRecord) || !isDefined(targetObjectMetadata)) {
           return;
         }
 
-        const targetRecord = searchRecord.record;
+        // Search labels arrive before the full records. A visible selection
+        // still has the IDs needed to save its link; do not silently drop it.
+        const targetRecord = searchRecord.record ?? {
+          id: morphItem.recordId,
+          __typename: getObjectTypename(targetObjectMetadata.nameSingular),
+        };
         const optimisticJunctionId = v4();
         const now = new Date().toISOString();
 
@@ -262,6 +296,7 @@ export const useUpdateJunctionRelationFromCell = ({
       store,
       createJunctionRecords,
       deleteJunctionRecord,
+      updateOneRecord,
       fieldDefinition.metadata.fieldName,
       junctionConfig,
       junctionObjectMetadata,

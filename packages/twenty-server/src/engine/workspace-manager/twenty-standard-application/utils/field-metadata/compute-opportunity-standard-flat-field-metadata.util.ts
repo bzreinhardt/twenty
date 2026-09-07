@@ -1,4 +1,5 @@
 import { msg } from '@lingui/core/macro';
+import { STANDARD_OBJECTS } from 'twenty-shared/metadata';
 import { i18nLabel } from 'src/engine/workspace-manager/twenty-standard-application/utils/i18n-label.util';
 import {
   DateDisplayFormat,
@@ -381,6 +382,35 @@ export const buildOpportunityStandardFlatFieldMetadatas = ({
     now,
   }),
 
+  additionalContacts: createStandardRelationFieldFlatMetadata({
+    objectName,
+    workspaceId,
+    standardObjectMetadataRelatedEntityIds,
+    dependencyFlatEntityMaps,
+    twentyStandardApplicationId,
+    now,
+    context: {
+      type: FieldMetadataType.RELATION,
+      morphId: null,
+      fieldName: 'additionalContacts',
+      label: i18nLabel(
+        msg({ message: `Points of contact`, context: 'fieldMetadata.label' }),
+      ),
+      description: i18nLabel(
+        msg({
+          message: `People linked to this opportunity. The contact list also includes its primary point of contact.`,
+          context: 'fieldMetadata.description',
+        }),
+      ),
+      icon: 'IconUsersGroup',
+      isNullable: true,
+      targetObjectName: 'opportunityContact',
+      targetFieldName: 'opportunity',
+      junctionTargetFieldUniversalIdentifier:
+        STANDARD_OBJECTS.opportunityContact.fields.person.universalIdentifier,
+      settings: { relationType: RelationType.ONE_TO_MANY },
+    },
+  }),
   pointOfContact: createStandardRelationFieldFlatMetadata({
     objectName,
     workspaceId,
@@ -389,11 +419,14 @@ export const buildOpportunityStandardFlatFieldMetadatas = ({
       morphId: null,
       fieldName: 'pointOfContact',
       label: i18nLabel(
-        msg({ message: `Point of Contact`, context: 'fieldMetadata.label' }),
+        msg({
+          message: `Primary point of contact`,
+          context: 'fieldMetadata.label',
+        }),
       ),
       description: i18nLabel(
         msg({
-          message: `Opportunity point of contact`,
+          message: `Primary person to contact about this opportunity`,
           context: 'fieldMetadata.description',
         }),
       ),

@@ -46,7 +46,10 @@ repository. Use coordinated PRs when a change requires both.
    git switch -c yourname/short-description
    ```
 
-2. Develop and test on the developer's own machine.
+2. Develop and test on the developer's own machine using a verified CRM mirror,
+   including for UI changes. Synthetic data is reserved for CI, clean
+   initialization, and screenshots. Leave the mirror running for user testing.
+   Follow `LOCAL-DEV.md` to reuse a saved snapshot and source hot reload.
 3. Push the branch and open a PR against `SpeculativeTechnologies/CRM:main`.
 4. Wait for `ci-fork-status-check` and review.
 5. Merge on GitHub. Do not push directly to `main`.

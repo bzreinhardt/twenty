@@ -25,6 +25,12 @@ def free_port():
         return listener.getsockname()[1]
 
 
+def require_development_dataset(manifest, fixture):
+    if manifest['kind'] != 'mirror' and not fixture:
+        raise RuntimeError('Local development requires a verified CRM mirror. '
+                           'Use --fixture only for synthetic screenshots or clean-initialization checks.')
+
+
 def available(port):
     with socket.socket() as listener:
         try:

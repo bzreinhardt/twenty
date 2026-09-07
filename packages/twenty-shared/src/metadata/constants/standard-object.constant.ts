@@ -766,6 +766,23 @@ export const STANDARD_OBJECTS = {
       }),
     },
   },
+  opportunityContact: {
+    universalIdentifier:
+      STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.opportunityContact,
+    fields: STANDARD_OBJECT_FIELDS.opportunityContact,
+    indexes: {
+      opportunityIdIndex: {
+        universalIdentifier: '95dd772e-195e-41ad-838a-9ba211eb2cde',
+      },
+      personIdIndex: {
+        universalIdentifier: '712b8857-3c94-4b99-8578-43c85159616d',
+      },
+      opportunityPersonUniqueIndex: {
+        universalIdentifier: '69e19f35-29e5-437e-a047-9b19cda20779',
+      },
+    },
+    views: {},
+  },
   opportunity: {
     universalIdentifier: STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.opportunity,
     fields: STANDARD_OBJECT_FIELDS.opportunity,

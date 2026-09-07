@@ -23,6 +23,7 @@ export enum CoreObjectNameSingular {
   Note = 'note',
   NoteTarget = 'noteTarget',
   Opportunity = 'opportunity',
+  OpportunityContact = 'opportunityContact',
   Person = 'person',
   Task = 'task',
   TaskTarget = 'taskTarget',

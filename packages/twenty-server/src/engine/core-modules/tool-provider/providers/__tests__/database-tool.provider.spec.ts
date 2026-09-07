@@ -180,6 +180,23 @@ describe('DatabaseToolProvider', () => {
     );
   });
 
+  it('should expose contact-link tools to the assistant when its role can manage opportunity contacts', async () => {
+    const descriptorNames = await generateDescriptorNames([
+      createFlatObject({
+        nameSingular: 'opportunityContact',
+        namePlural: 'opportunityContacts',
+        isSystem: true,
+      }),
+    ]);
+    expect(descriptorNames).toEqual(
+      expect.arrayContaining([
+        'find_many_opportunity_contacts',
+        'create_many_opportunity_contacts',
+        'delete_one_opportunity_contact',
+      ]),
+    );
+  });
+
   it('does not advertise write tools for objects blocked from automation', async () => {
     const descriptorNames = await generateDescriptorNames([
       createFlatObject({

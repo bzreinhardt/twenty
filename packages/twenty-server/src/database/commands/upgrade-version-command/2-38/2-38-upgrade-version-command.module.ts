@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AddOpportunityContactsCommand } from 'src/database/commands/upgrade-version-command/2-38/2-38-workspace-command-1788714704750-add-opportunity-contacts.command';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { WorkspaceIteratorModule } from 'src/database/commands/command-runners/workspace-iterator.module';
@@ -35,6 +36,7 @@ import { WorkspaceMigrationModule } from 'src/engine/workspace-manager/workspace
     WorkspaceSchemaManagerModule,
   ],
   providers: [
+    AddOpportunityContactsCommand,
     NormalizeCompanyDomainNamesCommand,
     AddBlocklistScopeFieldCommand,
     AddCalendarEventRelationsViewFieldCommand,

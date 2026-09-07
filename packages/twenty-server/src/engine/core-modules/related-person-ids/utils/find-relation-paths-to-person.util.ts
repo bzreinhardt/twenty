@@ -117,7 +117,14 @@ export const findRelationPathsToPerson = ({
           continue;
         }
 
-        if (isSystemObjectMetadata(relation.targetObjectMetadata)) {
+        // Explicit junction relations are part of the record's contact model.
+        // Other system objects must not pull unrelated people into its history.
+        if (
+          isSystemObjectMetadata(relation.targetObjectMetadata) &&
+          !isDefined(
+            field.universalSettings?.junctionTargetFieldUniversalIdentifier,
+          )
+        ) {
           continue;
         }
 

@@ -16,6 +16,9 @@ import { getMockObjectMetadataItemOrThrow } from '~/testing/utils/getMockObjectM
 import { getTestEnrichedObjectMetadataItemsMock } from '~/testing/utils/getTestEnrichedObjectMetadataItemsMock';
 
 jest.mock('@/object-metadata/hooks/useObjectMetadataItems');
+jest.mock('@/object-record/hooks/useUpdateOneRecord', () => ({
+  useUpdateOneRecord: () => ({ updateOneRecord: mockUpdateOneRecord }),
+}));
 jest.mock('@/object-record/hooks/useCreateManyRecords', () => ({
   useCreateManyRecords: jest.fn(),
 }));
@@ -37,6 +40,7 @@ const fieldDefinition = formatFieldMetadataItemAsFieldDefinition({
 
 const mockCreateManyRecords = jest.fn();
 const mockDeleteOneRecord = jest.fn();
+const mockUpdateOneRecord = jest.fn();
 
 const createWrapper = (store: ReturnType<typeof createStore>) =>
   function Wrapper({ children }: { children: ReactNode }) {
@@ -58,72 +62,77 @@ describe('useUpdateJunctionRelationFromCell', () => {
     } as ReturnType<typeof useDeleteOneRecord>);
   });
 
-  it('creates a pivot from the source record to the selected terminal record', async () => {
-    const store = createStore();
-    const sourceRecordId = 'rocket-id';
-    const targetRecordId = 'task-id';
+  it.each([true, false])(
+    'should save a selected link when full search record loading is %s',
+    async (isRecordLoaded) => {
+      const store = createStore();
+      const sourceRecordId = 'rocket-id';
+      const targetRecordId = 'task-id';
 
-    store.set(recordStoreFamilyState.atomFamily(sourceRecordId), {
-      id: sourceRecordId,
-      __typename: 'Rocket',
-      taskTargets: [],
-    });
-    store.set(searchRecordStoreFamilyState.atomFamily(targetRecordId), {
-      recordId: targetRecordId,
-      label: 'Prepare launch',
-      objectLabelSingular: 'Task',
-      objectNameSingular: 'task',
-      tsRank: 1,
-      tsRankCD: 1,
-      record: {
-        id: targetRecordId,
-        __typename: 'Task',
-        title: 'Prepare launch',
-      },
-    });
-    mockCreateManyRecords.mockResolvedValue([
-      {
-        id: 'persisted-task-target-id',
-        __typename: 'TaskTarget',
-      },
-    ]);
-
-    const { result } = renderHook(
-      () =>
-        useUpdateJunctionRelationFromCell({
-          fieldMetadataItem: taskTargetsField,
-          fieldDefinition,
-          recordId: sourceRecordId,
-        }),
-      { wrapper: createWrapper(store) },
-    );
-
-    expect(result.current.junctionConfig).toMatchObject({
-      direction: 'reverse',
-      targetFields: [{ name: 'task' }],
-    });
-
-    await act(async () => {
-      await result.current.updateJunctionRelationFromCell({
-        morphItem: {
-          recordId: targetRecordId,
-          objectMetadataId: taskMetadata.id,
-          isSelected: true,
-          isMatchingSearchFilter: true,
-        },
+      store.set(recordStoreFamilyState.atomFamily(sourceRecordId), {
+        id: sourceRecordId,
+        __typename: 'Rocket',
+        taskTargets: [],
       });
-    });
-
-    expect(mockCreateManyRecords).toHaveBeenCalledWith({
-      recordsToCreate: [
+      store.set(searchRecordStoreFamilyState.atomFamily(targetRecordId), {
+        recordId: targetRecordId,
+        label: 'Prepare launch',
+        objectLabelSingular: 'Task',
+        objectNameSingular: 'task',
+        tsRank: 1,
+        tsRankCD: 1,
+        record: isRecordLoaded
+          ? {
+              id: targetRecordId,
+              __typename: 'Task',
+              title: 'Prepare launch',
+            }
+          : undefined,
+      });
+      mockCreateManyRecords.mockResolvedValue([
         {
-          targetRocketId: sourceRecordId,
-          taskId: targetRecordId,
+          id: 'persisted-task-target-id',
+          __typename: 'TaskTarget',
         },
-      ],
-      upsert: true,
-    });
-  });
+      ]);
+
+      const { result } = renderHook(
+        () =>
+          useUpdateJunctionRelationFromCell({
+            fieldMetadataItem: taskTargetsField,
+            fieldDefinition,
+            recordId: sourceRecordId,
+          }),
+        { wrapper: createWrapper(store) },
+      );
+
+      expect(result.current.junctionConfig).toMatchObject({
+        direction: 'reverse',
+        targetFields: [{ name: 'task' }],
+      });
+
+      await act(async () => {
+        await result.current.updateJunctionRelationFromCell({
+          morphItem: {
+            recordId: targetRecordId,
+            objectMetadataId: taskMetadata.id,
+            isSelected: true,
+            isMatchingSearchFilter: true,
+          },
+        });
+      });
+
+      expect(mockCreateManyRecords).toHaveBeenCalledWith({
+        recordsToCreate: [
+          {
+            targetRocketId: sourceRecordId,
+            taskId: targetRecordId,
+          },
+        ],
+        upsert: true,
+      });
+    },
+  );
 
   it('deletes the pivot instead of detaching or updating it', async () => {
     const store = createStore();
@@ -173,4 +182,74 @@ describe('useUpdateJunctionRelationFromCell', () => {
     expect(mockDeleteOneRecord).toHaveBeenCalledWith('task-target-id');
     expect(mockCreateManyRecords).not.toHaveBeenCalled();
   });
+
+  it.each([true, false])(
+    'should clear a removed primary and delete only its real link when a link exists: %s',
+    async (hasLink) => {
+      const store = createStore();
+      const sourceRecordId = 'opportunity-id';
+      const targetRecordId = 'person-id';
+      const contactObjects = objectMetadataItems.map((object) => ({
+        ...object,
+        nameSingular:
+          object.nameSingular === 'rocket'
+            ? 'opportunity'
+            : object.nameSingular === 'taskTarget'
+              ? 'opportunityContact'
+              : object.nameSingular,
+      }));
+      jest
+        .mocked(useObjectMetadataItems)
+        .mockReturnValue({ objectMetadataItems: contactObjects });
+      store.set(recordStoreFamilyState.atomFamily(sourceRecordId), {
+        id: sourceRecordId,
+        __typename: 'Opportunity',
+        pointOfContactId: targetRecordId,
+        additionalContacts: hasLink
+          ? [
+              {
+                id: 'real-link',
+                __typename: 'OpportunityContact',
+                task: { id: targetRecordId, __typename: 'Task' },
+              },
+            ]
+          : [],
+      });
+      const { result } = renderHook(
+        () =>
+          useUpdateJunctionRelationFromCell({
+            fieldMetadataItem: taskTargetsField,
+            fieldDefinition: {
+              ...fieldDefinition,
+              metadata: {
+                ...fieldDefinition.metadata,
+                fieldName: 'additionalContacts',
+                objectMetadataNameSingular: 'opportunity',
+                relationObjectMetadataNameSingular: 'opportunityContact',
+              },
+            },
+            recordId: sourceRecordId,
+          }),
+        { wrapper: createWrapper(store) },
+      );
+      await act(async () => {
+        await result.current.updateJunctionRelationFromCell({
+          morphItem: {
+            recordId: targetRecordId,
+            objectMetadataId: taskMetadata.id,
+            isSelected: false,
+            isMatchingSearchFilter: true,
+          },
+        });
+      });
+      expect(mockUpdateOneRecord).toHaveBeenCalledWith({
+        objectNameSingular: 'opportunity',
+        idToUpdate: sourceRecordId,
+        updateOneRecordInput: { pointOfContactId: null },
+      });
+      if (hasLink)
+        expect(mockDeleteOneRecord).toHaveBeenCalledWith('real-link');
+      else expect(mockDeleteOneRecord).not.toHaveBeenCalled();
+    },
+  );
 });

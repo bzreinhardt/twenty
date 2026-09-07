@@ -152,6 +152,7 @@ export const STANDARD_PAGE_LAYOUT_UNIVERSAL_IDENTIFIERS = {
         widgets: {
           fields: 'Fields',
           pointOfContact: 'Point of Contact',
+          additionalContacts: 'Additional contacts',
           company: 'Company',
           owner: 'Owner',
         },

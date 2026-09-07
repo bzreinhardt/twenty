@@ -37,6 +37,7 @@ export const SEARCH_FIELDS_BY_STANDARD_OBJECT_NAME = {
     { name: 'bodyV2', type: FieldMetadataType.RICH_TEXT },
   ],
   noteTarget: [{ name: 'id', type: FieldMetadataType.UUID }],
+  opportunityContact: [],
   opportunity: [{ name: 'name', type: FieldMetadataType.TEXT }],
   person: [
     { name: 'name', type: FieldMetadataType.FULL_NAME },

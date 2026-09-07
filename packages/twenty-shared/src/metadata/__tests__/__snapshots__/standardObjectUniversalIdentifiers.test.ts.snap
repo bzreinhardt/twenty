@@ -2088,6 +2088,9 @@ exports[`STANDARD_OBJECTS universal identifiers should never change without an e
   },
   "opportunity": {
     "fields": {
+      "additionalContacts": {
+        "universalIdentifier": "52c1adec-64cc-4aa7-adcf-e7c8c108ac9f",
+      },
       "amount": {
         "universalIdentifier": "20202020-583e-4642-8533-db761d5fa82f",
       },
@@ -2291,8 +2294,58 @@ exports[`STANDARD_OBJECTS universal identifiers should never change without an e
       },
     },
   },
+  "opportunityContact": {
+    "fields": {
+      "createdAt": {
+        "universalIdentifier": "6a6966de-cd27-510c-af2e-b776c08863ab",
+      },
+      "createdBy": {
+        "universalIdentifier": "bb133111-89f2-52e4-be0a-28850f7face3",
+      },
+      "deletedAt": {
+        "universalIdentifier": "04f7a0f3-6b8a-505a-a4cf-6045e6c9b161",
+      },
+      "id": {
+        "universalIdentifier": "d63bc7eb-c885-5ad0-85dd-fa8b78eaa202",
+      },
+      "opportunity": {
+        "universalIdentifier": "eebf2942-bdfd-4111-9f2e-4d3b7ac61e5c",
+      },
+      "person": {
+        "universalIdentifier": "580276af-691c-4813-90c9-7df90e50e6f7",
+      },
+      "position": {
+        "universalIdentifier": "c3bac4ef-8ff5-5477-8224-e321487e5b12",
+      },
+      "searchVector": {
+        "universalIdentifier": "f6e384df-66c0-5392-970a-9be9c817dbf7",
+      },
+      "updatedAt": {
+        "universalIdentifier": "3453844d-54bb-5c61-b073-1637ccf67a07",
+      },
+      "updatedBy": {
+        "universalIdentifier": "2bcf85b0-a3a5-5eab-a44b-49d2af80f945",
+      },
+    },
+    "indexes": {
+      "opportunityIdIndex": {
+        "universalIdentifier": "95dd772e-195e-41ad-838a-9ba211eb2cde",
+      },
+      "opportunityPersonUniqueIndex": {
+        "universalIdentifier": "69e19f35-29e5-437e-a047-9b19cda20779",
+      },
+      "personIdIndex": {
+        "universalIdentifier": "712b8857-3c94-4b99-8578-43c85159616d",
+      },
+    },
+    "universalIdentifier": "f1fb5376-149e-485c-af41-221c726b00ca",
+    "views": {},
+  },
   "person": {
     "fields": {
+      "additionalOpportunities": {
+        "universalIdentifier": "172384a3-c8b4-4200-a499-0d30288022f1",
+      },
       "attachments": {
         "universalIdentifier": "54dd92e1-67bf-5381-86f3-c747976dcdaf",
       },

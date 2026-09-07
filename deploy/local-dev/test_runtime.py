@@ -8,10 +8,17 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from runtime import OWNER, ROOT, LocalStack, Processes, available, clean_environment
+from runtime import (OWNER, ROOT, LocalStack, Processes, available, clean_environment,
+                     require_development_dataset)
 
 
 class LocalDevelopmentTest(unittest.TestCase):
+    def test_development_requires_a_mirror_unless_fixture_is_explicit(self):
+        require_development_dataset({'kind': 'mirror'}, False)
+        require_development_dataset({'kind': 'fixture'}, True)
+        with self.assertRaisesRegex(RuntimeError, 'requires a verified CRM mirror'):
+            require_development_dataset({'kind': 'fixture'}, False)
+
     def test_shell_credentials_and_runtime_overrides_are_not_inherited(self):
         with patch.dict(os.environ, {'PG_DATABASE_URL': 'postgres://remote.invalid/crm',
                                      'AWS_SECRET_ACCESS_KEY': 'must-not-inherit',

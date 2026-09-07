@@ -12,7 +12,7 @@ import signal
 import sys
 import uuid
 
-from runtime import ROOT, LocalStack, available, check_node, free_port, watch
+from runtime import ROOT, LocalStack, available, check_node, free_port, require_development_dataset, watch
 from stack import guard
 
 # Both entrypoints are named main.py; load the frozen-baseline implementation explicitly.
@@ -44,6 +44,7 @@ def prepare(args, previous):
     if not args.baseline and not previous:
         raise RuntimeError('First start needs --baseline PATH. See deploy/LOCAL-DEV.md to create a saved starting database.')
     manifest = migration.validate_manifest(baseline)
+    require_development_dataset(manifest, args.fixture)
     if previous and args.action != 'reset' and manifest['dump_sha256'] != previous['baseline_checksum']:
         raise RuntimeError('Saved snapshot changed; choose a new snapshot identifier and reset explicitly')
     if previous and str(baseline) != previous['baseline'] and args.action != 'reset':
@@ -99,7 +100,9 @@ def main():
     commands = parser.add_subparsers(dest='action', required=True)
     for action in ['start', 'reset']:
         command = commands.add_parser(action)
-        command.add_argument('--baseline', help='Frozen fixture or verified mirror directory')
+        command.add_argument('--baseline', help='Frozen verified CRM mirror directory')
+        command.add_argument('--fixture', action='store_true',
+                             help='Explicit synthetic screenshot or clean-initialization session')
         command.add_argument('--port', dest='front_port', type=int, help='Frontend port (first start chooses a free port)')
         command.add_argument('--api-port', type=int, help='API port (first start chooses a free port)')
     commands.add_parser('status')

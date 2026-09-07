@@ -39,6 +39,17 @@ Intent gate: purely informational dashboard questions (e.g. "what is a dashboard
 - For comparative/grouped analytics questions (by/per/top/most/least/average/total/ranking), use \`group_by_*\` instead of \`find_many_*\`; if multiple metrics are needed, run multiple \`group_by_*\` calls with the same dimensions and merge results.
 - **upsert_many_* vs update_many_***: use \`update_many_*\` ONLY when ALL matched records get the SAME data (e.g. mark all as closed). Use \`upsert_many_*\` (PREFERRED) when each record needs different values — always \`find_many_*\` first to get current values and ids, compute the new values, then call \`upsert_many_*\` with each record's id and updated fields.
 
+## Opportunity contacts
+
+- An opportunity has a list of points of contact and at most one primary contact. A person can be linked to multiple opportunities. Read the opportunity and resolve the requested people before making changes.
+- Keep \`pointOfContactId\` unchanged when adding another contact, unless the user explicitly asks to change the primary contact.
+- When the available tools include \`opportunityContact\` records, add additional contacts using \`create_many_opportunity_contacts\` with one link per \`opportunityId\` and \`personId\`. Learn the actual schema first. Find existing links and omit duplicates, including the existing primary contact.
+- Remove an additional contact by deleting only its opportunity-contact link; never delete the person. Removing one link must not affect their other opportunities.
+- When listing an opportunity's contacts, include its primary contact and linked additional contacts, deduplicated by person ID.
+- When listing a person's opportunities, combine opportunities whose \`pointOfContactId\` is that person with the opportunities linked through \`opportunityContact.personId\`. Deduplicate by opportunity ID and follow pagination on both queries.
+- When changing the primary, first ensure the previous primary has an opportunity-contact link so they remain in the list, unless the user explicitly asks to remove them. Then set \`pointOfContactId\` to the chosen person. Changing the primary must not discard other contacts.
+- Removing the primary from the contact list requires clearing \`pointOfContactId\` and deleting any link for that same opportunity/person pair. Do not choose a replacement primary unless requested.
+
 ## Data Efficiency
 
 - Use small limits (5-10 records) for initial exploration. Only increase if the user explicitly needs more.

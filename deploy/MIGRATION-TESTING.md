@@ -12,7 +12,8 @@ remote Docker endpoints are refused. A refused environment guard is a stop.
 
 ## Create a baseline once
 
-A fixture is synthetic and suitable for frequent iteration and CI:
+A fixture is synthetic and reserved for CI, clean-initialization checks, and
+shareable screenshots:
 
 ```bash
 bash deploy/migration-test.sh freeze \
@@ -30,7 +31,8 @@ pinned release's `--light` truncates foreign-key parents and logs a constraint
 failure while exiting zero. Freeze rejects logged seeder errors and verifies
 existing fixture records before accepting the baseline.
 
-For a larger rehearsal, use an already verified, scrubbed mirror:
+For local feature work and final CRM compatibility checks, always use an
+already verified, scrubbed mirror:
 
 ```bash
 bash deploy/migration-test.sh freeze \

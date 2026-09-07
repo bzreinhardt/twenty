@@ -54,8 +54,30 @@ export const generateDepthRecordGqlFieldsFromFields = ({
         }
 
         if (junctionConfig?.isValid === true && depth === 1) {
+          const primaryFieldName =
+            junctionConfig.junctionObjectMetadata.nameSingular ===
+            'opportunityContact'
+              ? fieldMetadata.name === 'additionalContacts'
+                ? 'pointOfContact'
+                : fieldMetadata.name === 'additionalOpportunities'
+                  ? 'pointOfContactForOpportunities'
+                  : undefined
+              : undefined;
+          const primaryField = objectMetadataItems
+            .find((item) => item.id === sourceObjectMetadataItem?.id)
+            ?.fields.find((field) => field.name === primaryFieldName);
+
           return {
             ...recordGqlFields,
+            ...(isDefined(primaryField)
+              ? generateDepthRecordGqlFieldsFromFields({
+                  objectMetadataItems,
+                  sourceObjectMetadataItem,
+                  fields: [primaryField],
+                  depth,
+                  shouldOnlyLoadRelationIdentifiers,
+                })
+              : {}),
             [fieldMetadata.name]: generateJunctionRelationGqlFields({
               junctionConfig,
               objectMetadataItems,

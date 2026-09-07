@@ -1,5 +1,6 @@
 import { recordStoreFamilyState } from '@/object-record/record-store/states/recordStoreFamilyState';
 import { type ObjectRecord } from '@/object-record/types/ObjectRecord';
+import { getOpportunityContactRelationValue } from '@/opportunity/utils/getOpportunityContactRelationValue';
 import { createAtomWritableFamilySelector } from '@/ui/utilities/state/jotai/utils/createAtomWritableFamilySelector';
 
 export const recordStoreFamilySelector = createAtomWritableFamilySelector<
@@ -10,7 +11,10 @@ export const recordStoreFamilySelector = createAtomWritableFamilySelector<
   get:
     ({ recordId, fieldName }) =>
     ({ get }) =>
-      get(recordStoreFamilyState, recordId)?.[fieldName],
+      getOpportunityContactRelationValue(
+        get(recordStoreFamilyState, recordId),
+        fieldName,
+      ),
   set:
     ({ recordId, fieldName }) =>
     ({ set }, newValue) => {

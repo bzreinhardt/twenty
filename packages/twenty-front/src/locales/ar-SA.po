@@ -5250,6 +5250,11 @@ msgstr "التكلفة لكل مليون رمز (دولار أمريكي)"
 msgid "Cost per million tokens for cached input (USD)"
 msgstr "التكلفة لكل مليون رمز للإدخال المخزَّن مؤقتًا (دولار أمريكي)"
 
+#. js-lingui-id: 15QD6D
+#: src/modules/opportunity/components/OpportunityPrimaryContactAction.tsx
+msgid "Could not change the primary contact"
+msgstr ""
+
 #. js-lingui-id: T8ACay
 #: src/pages/settings/applications/components/SettingsClaimApplicationSection.tsx
 msgid "Could not claim this application"
@@ -12304,6 +12309,11 @@ msgstr ""
 msgid "Make HTTP requests to external APIs"
 msgstr "إجراء طلبات HTTP إلى واجهات API خارجية"
 
+#. js-lingui-id: +VEqyj
+#: src/modules/opportunity/components/OpportunityPrimaryContactAction.tsx
+msgid "Make primary"
+msgstr ""
+
 #. js-lingui-id: icpEdc
 #: src/pages/settings/applications/SettingsApplicationConnectionDetail.tsx
 msgid "Make private"
@@ -15843,6 +15853,11 @@ msgstr "الفترة السابقة"
 #: src/pages/settings/admin-panel/SettingsAdminNewAiModel.tsx
 msgid "Pricing"
 msgstr "التسعير"
+
+#. js-lingui-id: T/R+Qz
+#: src/modules/opportunity/components/OpportunityPrimaryContactAction.tsx
+msgid "Primary"
+msgstr ""
 
 #. js-lingui-id: 0Ni6nR
 #: src/modules/object-record/record-field/ui/form-types/components/FormEmailsFieldInput.tsx

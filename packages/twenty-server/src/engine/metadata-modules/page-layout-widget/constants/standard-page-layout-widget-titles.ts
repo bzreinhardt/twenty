@@ -20,6 +20,8 @@ export const getStandardPageLayoutWidgetTitles = () => [
   msg({ message: `Opportunities`, context: 'pageLayoutWidget.title' }),
   msg({ message: `Company`, context: 'pageLayoutWidget.title' }),
   msg({ message: `Point of Contact`, context: 'pageLayoutWidget.title' }),
+  msg({ message: `Additional contacts`, context: 'pageLayoutWidget.title' }),
+  msg({ message: `Points of contact`, context: 'pageLayoutWidget.title' }),
   msg({ message: `Owner`, context: 'pageLayoutWidget.title' }),
   msg({ message: `Workflow`, context: 'pageLayoutWidget.title' }),
   msg({ message: `Untitled Rich Text`, context: 'pageLayoutWidget.title' }),

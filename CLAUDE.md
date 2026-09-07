@@ -35,7 +35,8 @@ cd packages/{workspace} && npx jest "pattern or filename"
 npx nx storybook:build twenty-front
 npx nx storybook:test twenty-front
 
-# When testing the UI end to end, click on "Continue with Email" and use the prefilled credentials.
+# Local mirror: Continue with Email, a mirrored CRM account, password devmirror.
+# Synthetic fixture only: use the prefilled credentials.
 ```
 
 ### Browser Automation
@@ -276,12 +277,13 @@ private because it describes a live system; this repository is public.
 
 ### Data and verification
 
-- Use `bash deploy/local-data.sh seed` for UI, copy, frontend state, and isolated
-  utility work.
-- Use `bash deploy/local-data.sh mirror` for entities, instance commands,
-  workspace upgrades, views, search, permissions, or any migration. The fixture
-  lacks this fork's seven custom objects, so migrations that pass against it can
-  still fail in production.
+- Always use the verified development mirror for local feature work and user
+  testing, including UI changes. Follow `deploy/LOCAL-DEV.md` for isolated
+  worktrees; use `bash deploy/local-data.sh mirror` for the standard checkout.
+- Synthetic fixtures are reserved for CI, clean initialization, and shareable
+  screenshots. Restore/resume the mirror before handing local testing to Ben.
+  Fixtures lack this fork's custom fields, layouts, views, and seven custom
+  objects, so fixture-only verification cannot establish CRM compatibility.
 - For schema changes, test both an existing-database upgrade and clean
   initialization, then retest against mirrored data as required by
   `deploy/LLM-LOCAL-DEV.md`.

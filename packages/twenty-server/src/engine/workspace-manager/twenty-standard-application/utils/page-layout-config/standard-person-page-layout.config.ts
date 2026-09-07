@@ -45,7 +45,7 @@ const PERSON_PAGE_TABS = {
         type: WidgetType.FIELD,
         position: VERTICAL_LIST_LAYOUT_POSITIONS.THIRD,
         fieldUniversalIdentifier:
-          STANDARD_OBJECTS.person.fields.pointOfContactForOpportunities
+          STANDARD_OBJECTS.person.fields.additionalOpportunities
             .universalIdentifier,
       },
       listMemberships: {

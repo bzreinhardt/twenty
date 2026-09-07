@@ -5245,6 +5245,11 @@ msgstr "Cost per million tokens (USD)"
 msgid "Cost per million tokens for cached input (USD)"
 msgstr "Cost per million tokens for cached input (USD)"
 
+#. js-lingui-id: 15QD6D
+#: src/modules/opportunity/components/OpportunityPrimaryContactAction.tsx
+msgid "Could not change the primary contact"
+msgstr "Could not change the primary contact"
+
 #. js-lingui-id: T8ACay
 #: src/pages/settings/applications/components/SettingsClaimApplicationSection.tsx
 msgid "Could not claim this application"
@@ -12299,6 +12304,11 @@ msgstr "Make {email} primary"
 msgid "Make HTTP requests to external APIs"
 msgstr "Make HTTP requests to external APIs"
 
+#. js-lingui-id: +VEqyj
+#: src/modules/opportunity/components/OpportunityPrimaryContactAction.tsx
+msgid "Make primary"
+msgstr "Make primary"
+
 #. js-lingui-id: icpEdc
 #: src/pages/settings/applications/SettingsApplicationConnectionDetail.tsx
 msgid "Make private"
@@ -15838,6 +15848,11 @@ msgstr "Previous period"
 #: src/pages/settings/admin-panel/SettingsAdminNewAiModel.tsx
 msgid "Pricing"
 msgstr "Pricing"
+
+#. js-lingui-id: T/R+Qz
+#: src/modules/opportunity/components/OpportunityPrimaryContactAction.tsx
+msgid "Primary"
+msgstr "Primary"
 
 #. js-lingui-id: 0Ni6nR
 #: src/modules/object-record/record-field/ui/form-types/components/FormEmailsFieldInput.tsx

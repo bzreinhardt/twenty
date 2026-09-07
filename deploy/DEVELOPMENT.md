@@ -24,7 +24,7 @@ bash packages/twenty-utils/setup-dev-env.sh --docker
 cp deploy/git-hooks/post-merge .git/hooks/post-merge
 chmod +x .git/hooks/post-merge
 bash deploy/local-schema.sh check
-bash deploy/local-data.sh seed
+bash deploy/local-data.sh mirror
 yarn start
 ```
 
@@ -116,16 +116,18 @@ Reset is intentionally explicit and operates only after `local-schema.sh`
 confirms that the standard `twenty-dev` Docker database and Redis are the
 targets.
 
-The fixture is the right dataset for CI and for a first run. It is the wrong
-dataset for schema work, because it contains only Twenty's standard objects.
-Our workspace has seven more (`candidate`, `fellow`, `mentor`, `reviewer`,
+Use the fixture only for CI, clean-initialization checks, and shareable
+screenshots. Always use the verified mirror for local development and user
+testing, including a first run or a UI change. The fixture contains only
+Twenty's standard objects. Our workspace has seven more (`candidate`, `fellow`, `mentor`, `reviewer`,
 `enrollment`, `connection`, `employmentHistory`) and roughly 150 extra fields,
 none of which the fixture exercises.
 
 ## The development mirror
 
-The mirror is a scrubbed copy of the real CRM. Use it whenever a change touches
-entities, instance commands, workspace upgrades, views, or search.
+The mirror is a scrubbed copy of the real CRM. Always use it for local feature
+work and user testing so custom layouts, fields, and records are exercised.
+For isolated worktrees, follow [LOCAL-DEV.md](LOCAL-DEV.md).
 
 ```bash
 bash deploy/local-data.sh mirror

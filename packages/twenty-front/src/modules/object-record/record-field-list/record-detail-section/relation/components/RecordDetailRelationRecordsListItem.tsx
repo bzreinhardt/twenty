@@ -1,6 +1,6 @@
 import { styled } from '@linaria/react';
 import { motion } from 'framer-motion';
-import { useCallback, useContext } from 'react';
+import { type ReactNode, useCallback, useContext } from 'react';
 
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
@@ -67,6 +67,7 @@ type RecordDetailRelationRecordsListItemProps = {
   relationRecord: ObjectRecord;
   relationObjectMetadataNameSingular: string;
   relationFieldMetadataId: string;
+  additionalAction?: ReactNode;
 };
 
 export const RecordDetailRelationRecordsListItem = ({
@@ -75,6 +76,7 @@ export const RecordDetailRelationRecordsListItem = ({
   relationRecord,
   relationObjectMetadataNameSingular,
   relationFieldMetadataId,
+  additionalAction,
 }: RecordDetailRelationRecordsListItemProps) => {
   const { scopeInstanceId } = useRecordFieldsScopeContextOrThrow();
   const {
@@ -221,6 +223,7 @@ export const RecordDetailRelationRecordsListItem = ({
           record={relationRecord}
           objectNameSingular={relationObjectMetadataItem.nameSingular}
         />
+        {additionalAction}
         <StyledClickableZone onClick={handleClick} data-testid="expand-button">
           <LightIconButton
             className="displayOnHover"

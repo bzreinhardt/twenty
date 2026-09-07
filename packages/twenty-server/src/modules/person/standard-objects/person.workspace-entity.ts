@@ -7,6 +7,7 @@ import {
 } from 'twenty-shared/types';
 
 import { type FileOutput } from 'src/engine/api/common/common-args-processors/data-arg-processor/types/file-item.type';
+import { type OpportunityContactWorkspaceEntity } from 'src/modules/opportunity/standard-objects/opportunity-contact.workspace-entity';
 import { BaseWorkspaceEntity } from 'src/engine/twenty-orm/base.workspace-entity';
 import { type EntityRelation } from 'src/engine/workspace-manager/workspace-migration/types/entity-relation.interface';
 import { type AttachmentWorkspaceEntity } from 'src/modules/attachment/standard-objects/attachment.workspace-entity';
@@ -22,6 +23,7 @@ import { type TaskTargetWorkspaceEntity } from 'src/modules/task/standard-object
 import { type TimelineActivityWorkspaceEntity } from 'src/modules/timeline/standard-objects/timeline-activity.workspace-entity';
 
 export class PersonWorkspaceEntity extends BaseWorkspaceEntity {
+  additionalOpportunities: EntityRelation<OpportunityContactWorkspaceEntity[]>;
   name: FullNameMetadata | null;
   emails: EmailsMetadata;
   linkedinLink: LinksMetadata | null;

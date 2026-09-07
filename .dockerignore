@@ -8,5 +8,6 @@ packages/twenty-server/.env
 packages/*/dist
 packages/*/build
 deploy/.devdata
+deploy/.local-dev
 deploy/.migration-tests
 !**/.env.example
