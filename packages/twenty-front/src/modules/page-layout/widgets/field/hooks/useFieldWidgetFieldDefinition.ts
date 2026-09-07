@@ -1,6 +1,8 @@
 import { useFieldMetadataItemById } from '@/object-metadata/hooks/useFieldMetadataItemById';
+import { useGetIsMetadataItemFromStandardApplication } from '@/object-metadata/hooks/useGetIsMetadataItemFromStandardApplication';
 import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { formatFieldMetadataItemAsColumnDefinition } from '@/object-metadata/utils/formatFieldMetadataItemAsColumnDefinition';
+import { resolvePersonOpportunitiesWidgetField } from '@/opportunity/utils/resolvePersonOpportunitiesWidgetField';
 import { useResolveFieldMetadataIdFromNameOrId } from '@/page-layout/hooks/useResolveFieldMetadataIdFromNameOrId';
 import { type PageLayoutWidget } from '@/page-layout/types/PageLayoutWidget';
 import { isFieldWidget } from '@/page-layout/widgets/field/utils/isFieldWidget';
@@ -22,9 +24,17 @@ export const useFieldWidgetFieldDefinition = (widget: PageLayoutWidget) => {
     fieldMetadataId ?? '',
   );
 
-  const { fieldMetadataItem } = useFieldMetadataItemById(
-    resolvedFieldMetadataId ?? '',
-  );
+  const { fieldMetadataItem: configuredFieldMetadataItem } =
+    useFieldMetadataItemById(resolvedFieldMetadataId ?? '');
+  const getIsMetadataItemFromStandardApplication =
+    useGetIsMetadataItemFromStandardApplication();
+  const fieldMetadataItem = resolvePersonOpportunitiesWidgetField({
+    objectNameSingular: objectMetadataItem.nameSingular,
+    fields: objectMetadataItem.fields,
+    fieldMetadataItem: configuredFieldMetadataItem,
+    widget,
+    isStandardWidget: getIsMetadataItemFromStandardApplication(widget) === true,
+  });
 
   const fieldDefinition = isDefined(fieldMetadataItem)
     ? formatFieldMetadataItemAsColumnDefinition({
