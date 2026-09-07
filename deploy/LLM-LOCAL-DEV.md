@@ -76,6 +76,26 @@ Check what is installed at any time with `bash deploy/local-data.sh verify`.
 
 ## Step 2: make the change
 
+Before editing, write a short acceptance checklist in the private task note and
+reproduce the missing behavior on the running mirror. Use observable outcomes,
+not a list of files to change. Infer routine expectations from the request;
+ask only when a material product decision is unresolved. Update the checklist
+when the user clarifies the feature, and test the complete checklist before
+handing it back.
+
+For a relationship change, follow it from both records and through the existing
+pages the user actually uses. For example, multiple opportunity contacts means
+adding two people, choosing a primary, seeing the opportunity on each linked
+person, keeping the other links when one is removed, and preserving the result
+after reload. Test existing mirrored layouts, not only new default layouts.
+
+Inspect the stored relationship, the API/query selection and the displayed
+widget before choosing an implementation. If the data already represents the
+requested behavior, establish why a schema or persistent layout migration is
+needed before adding one. A changed default layout does not prove that existing
+pages changed. Get one complete user interaction working locally before running
+the release cycle; passing unit tests alone is not a local product handoff.
+
 Follow `CLAUDE.md` for code conventions. For schema changes specifically:
 
 ```bash
@@ -257,8 +277,12 @@ verification step is worse than a failed one.
 ## Keep the development loop short
 
 - Confirm worktree, branch, dataset, URL and running supervisor once. Keep a
-  private handoff under `deploy/.local-dev/` with that state and check results;
-  never put credentials or mirror rows in user-facing output.
+  compact private handoff under `deploy/.local-dev/` with the current acceptance
+  checklist, state, check commands/results and the revisions they cover. Replace
+  stale status instead of accumulating contradictory handoffs. Read mandatory
+  guides in full at the start; reuse that context during the task and reread
+  when the guide changes or a new environment becomes relevant. Never put
+  credentials or mirror rows in user-facing output.
 - Reuse the frozen mirror and running source watchers. Ordinary source edits
   need hot reload, not a Docker image build, data refresh, or deployment.
   Restore the baseline when testing an edited migration; keep it fixed during
@@ -270,8 +294,13 @@ verification step is worse than a failed one.
   mirror: add two contacts, reload, remove one, and verify the other and primary
   contact survive. Keep mirror screenshots, responses and names out of output.
 - Run focused behavior tests and required diff lint/typechecks while iterating.
-  Format changed source with `oxfmt`; also lint new, uncommitted files directly,
-  because `lint:diff-with-main` only considers committed changes. Use the
+  Use `yarn check:local` for the isolated worktree's combined checks; it shares
+  the Nx task graph and cached dependencies. Run
+  focused tests for each behavior change, then complete required checks for the
+  coherent change. Do not repeat passed checks on unchanged inputs merely
+  because the user asks for status or moves from local acceptance to a PR.
+  Format changed source with `oxfmt`; the frontend/server changed-file lint
+  includes staged, unstaged and untracked source files. Use the
   migration formatter convention for new upgrade commands, which are excluded
   from the general formatter to protect committed commands.
   For built-in layout changes, also run `standard-metadata-label-catalog.spec.ts`
@@ -282,6 +311,8 @@ verification step is worse than a failed one.
   coherent change is ready. Repeat checks only for changed code or new failures.
 - Read `timings.json` and the named phase log when startup is slow. Report the
   phase being checked instead of repeatedly polling an unchanged browser.
+  Distinguish implementation/rework time from setup, local checks, CI and
+  deployment time. Improve the phase that delayed the user's feature.
 - Finish shared-package builds and typechecks before browser acceptance tests;
   replacing shared bundles during a browser run can trigger a full reload.
 - Before returning a local testing link, confirm the mirror is running, sign-in
