@@ -1,7 +1,4 @@
-import { useFieldMetadataItemById } from '@/object-metadata/hooks/useFieldMetadataItemById';
-import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
-import { formatFieldMetadataItemAsColumnDefinition } from '@/object-metadata/utils/formatFieldMetadataItemAsColumnDefinition';
 import { isFieldMorphRelation } from '@/object-record/record-field/ui/types/guards/isFieldMorphRelation';
 import { isFieldRelation } from '@/object-record/record-field/ui/types/guards/isFieldRelation';
 import { isFieldRichText } from '@/object-record/record-field/ui/types/guards/isFieldRichText';
@@ -9,7 +6,6 @@ import { isFieldText } from '@/object-record/record-field/ui/types/guards/isFiel
 import { isUsableJunctionConfig } from '@/object-record/record-field/ui/utils/junction/isUsableJunctionConfig';
 import { resolveJunctionConfig } from '@/object-record/record-field/ui/utils/junction/resolveJunctionConfig';
 import { recordStoreFamilySelector } from '@/object-record/record-store/states/selectors/recordStoreFamilySelector';
-import { useResolveFieldMetadataIdFromNameOrId } from '@/page-layout/hooks/useResolveFieldMetadataIdFromNameOrId';
 import { type PageLayoutWidget } from '@/page-layout/types/PageLayoutWidget';
 import { FieldWidgetDisplay } from '@/page-layout/widgets/field/components/FieldWidgetDisplay';
 import { FieldWidgetJunctionRelationCard } from '@/page-layout/widgets/field/components/FieldWidgetJunctionRelationCard';
@@ -23,6 +19,7 @@ import { FieldWidgetRelationTable } from '@/page-layout/widgets/field/components
 import { assertFieldWidgetOrThrow } from '@/page-layout/widgets/field/utils/assertFieldWidgetOrThrow';
 import { getFieldWidgetEffectiveDisplayMode } from '@/page-layout/widgets/field/utils/getFieldWidgetEffectiveDisplayMode';
 import { FieldWidgetTextEditor } from '@/page-layout/widgets/field/components/FieldWidgetTextEditor';
+import { useFieldWidgetFieldDefinition } from '@/page-layout/widgets/field/hooks/useFieldWidgetFieldDefinition';
 import { useTargetRecord } from '@/ui/layout/contexts/useTargetRecord';
 import { useWorkspaceSurface } from '@/ui/layout/hooks/useWorkspaceSurface';
 import { SidePanelProvider } from '@/ui/layout/side-panel/contexts/SidePanelContext';
@@ -54,26 +51,20 @@ export const FieldWidget = ({ widget }: FieldWidgetProps) => {
   const targetRecord = useTargetRecord();
   const isInSidePanel = useWorkspaceSurface().type === 'side-panel';
 
-  const { objectMetadataItem } = useObjectMetadataItem({
-    objectNameSingular: targetRecord.targetObjectNameSingular,
-  });
+  const { objectMetadataItem, fieldMetadataItem, fieldDefinition } =
+    useFieldWidgetFieldDefinition(widget);
   const { objectMetadataItems } = useObjectMetadataItems();
-
-  const fieldMetadataId = widget.configuration.fieldMetadataId;
-
-  const resolvedFieldMetadataId =
-    useResolveFieldMetadataIdFromNameOrId(fieldMetadataId);
-
-  const { fieldMetadataItem } = useFieldMetadataItemById(
-    resolvedFieldMetadataId ?? '',
-  );
 
   const record = useAtomFamilySelectorValue(recordStoreFamilySelector, {
     recordId: targetRecord.id,
     fieldName: fieldMetadataItem?.name ?? '',
   });
 
-  if (!isDefined(fieldMetadataItem) || !fieldMetadataItem.isActive) {
+  if (
+    !isDefined(fieldMetadataItem) ||
+    !fieldMetadataItem.isActive ||
+    !isDefined(fieldDefinition)
+  ) {
     return (
       <SidePanelProvider value={{ isInSidePanel }}>
         <StyledContainer>
@@ -92,14 +83,6 @@ export const FieldWidget = ({ widget }: FieldWidgetProps) => {
       </SidePanelProvider>
     );
   }
-
-  const fieldDefinition = formatFieldMetadataItemAsColumnDefinition({
-    field: fieldMetadataItem,
-    position: 0,
-    objectMetadataItem,
-    showLabel: true,
-    labelWidth: 90,
-  });
 
   const fieldDisplayMode = getFieldWidgetEffectiveDisplayMode(
     widget.configuration,
