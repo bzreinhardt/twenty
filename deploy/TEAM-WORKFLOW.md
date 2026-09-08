@@ -48,7 +48,10 @@ repository. Use coordinated PRs when a change requires both.
 
 2. Develop and test on the developer's own machine using a verified CRM mirror,
    including for UI changes. Synthetic data is reserved for CI, clean
-   initialization, and screenshots. Leave the mirror running for user testing.
+   initialization, and screenshots. Keep the mirror running during requested
+   local testing; stop this task's watchers and Docker containers when testing
+   finishes, preserving its data. Do not leave services running while only CI,
+   review or promotion remains, unless the user asks for continued local access.
    Follow `LOCAL-DEV.md` to reuse a saved snapshot and source hot reload.
    Before editing, reproduce the missing behavior and write a short acceptance
    checklist covering the user's complete interaction. Check existing layouts

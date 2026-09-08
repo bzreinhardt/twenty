@@ -277,6 +277,10 @@ private because it describes a live system; this repository is public.
 
 ### Data and verification
 
+- When local testing is finished, stop this task's source watchers and Docker
+  containers, preserving local data. Leave them running only for explicitly
+  requested ongoing local testing. Follow `deploy/LOCAL-DEV.md` for shutdown;
+  do not stop other worktrees' services or delete volumes as routine cleanup.
 - Always use the verified development mirror for local feature work and user
   testing, including UI changes. Follow `deploy/LOCAL-DEV.md` for isolated
   worktrees; use `bash deploy/local-data.sh mirror` for the standard checkout.

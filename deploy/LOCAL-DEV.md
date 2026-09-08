@@ -68,7 +68,9 @@ changed URL or a connection to another developer's service.
 - Edit a built shared package or dependencies: stop and start again to rebuild
   dependencies. Frontend imports of source files reload directly.
 
-Ctrl-C stops the watchers and their children while keeping the database.
+Ctrl-C stops the watchers and their children while keeping the database
+containers running. When testing is finished, also stop those containers using
+the shutdown procedure below.
 Resume with `yarn dev:local` or `bash deploy/local-dev.sh start`; the selected
 snapshot and ports are remembered. Do not run the ordinary `yarn start` in
 parallel in the same worktree: it uses different connection settings and shares
@@ -119,10 +121,50 @@ commands in [MIGRATION-TESTING.md](MIGRATION-TESTING.md), then use
 mirror, and switch back with `reset --baseline <mirror-directory>` before
 handing off local testing. Preserve local user edits before any reset.
 
-Use `bash deploy/local-dev.sh status` to see the dataset, checksum
-and URL. Use `bash deploy/local-dev.sh down` to remove this worktree's database,
-queues and uploads. This retains the saved snapshot and private diagnostics;
-delete confidential snapshots/logs when they are no longer needed.
+Use `bash deploy/local-dev.sh status` to see the dataset, checksum and URL.
+
+## Finish local testing
+
+Stop this task's source watchers and Docker containers when local testing is
+finished, including after user acceptance. Leave them running only when the
+user explicitly wants continued local testing. Waiting for CI, review, merge or
+deployment does not require a running local environment.
+
+For an isolated worktree:
+
+1. Stop its supervisor with Ctrl-C in the session that started it. If that
+   session is unavailable, verify the supervisor's process ID and worktree
+   before sending SIGTERM; never use a broad process-name kill.
+2. Run `bash deploy/local-dev.sh status` from that worktree to check the local
+   environment guard and confirm the supervisor stopped.
+3. Identify containers by the exact worktree ownership label:
+
+   ```bash
+   docker ps --filter "label=tech.spec.local-dev.worktree=$(pwd -P)" \
+     --format '{{.ID}} {{.Names}}'
+   ```
+
+   Stop the verified container IDs with `docker stop <container-id> ...`, then
+   repeat the filtered listing and confirm no containers remain running.
+   Do not print `state.json`, which contains a signing secret.
+
+For the standard `twenty-dev` Compose stack, stop the task's application
+processes, confirm the stack is not in use by another task, then run:
+
+```bash
+docker compose -f packages/twenty-docker/docker-compose.dev.yml stop
+docker compose -f packages/twenty-docker/docker-compose.dev.yml ps --status running
+```
+
+Record shutdown in the handoff. Preserve containers, volumes, uploads and the
+saved snapshot so the next start can resume local edits. Do not stop unrelated
+containers or quit Docker Desktop globally. If Docker is unavailable, report
+that shutdown could not be verified; do not start it just for cleanup.
+
+`bash deploy/local-dev.sh down` is destructive: it removes this worktree's
+database, Redis and local uploads, retaining only the saved snapshot and private
+diagnostics. Use it only when discarding local data is requested, not for routine
+shutdown. Likewise, do not use volume deletion or Docker pruning for cleanup.
 
 ## Boundaries and release checks
 
@@ -155,7 +197,8 @@ it is not needed for every frontend or database experiment.
 
 ## Faster feedback
 
-Keep the mirror and source watchers running for ordinary edits. Refreshing data,
+Keep the mirror and source watchers running during active edits and testing;
+stop them when testing is finished as described above. Refreshing data,
 rebuilding a release image, and deploying are separate from the daily edit loop.
 Run focused behavior tests and required diff lint/typechecks first; build and
 rehearse the final image once the coherent change is ready. Consult private
