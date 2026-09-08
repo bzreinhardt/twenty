@@ -21,6 +21,10 @@ Human context is in [TEAM-WORKFLOW.md](TEAM-WORKFLOW.md) and
    issue, log, or hosted artifact. See "Handling mirror data" below.
 6. If a command refuses to run because of an environment guard, stop and report
    it. Do not work around the guard.
+7. When local testing is finished, stop this task's source watchers and Docker
+   containers. Preserve data and other worktrees' services. Leave the environment
+   running only for explicitly requested ongoing local testing; see
+   [LOCAL-DEV.md](LOCAL-DEV.md#finish-local-testing).
 
 ## Step 0: confirm where you are
 
@@ -287,6 +291,9 @@ verification step is worse than a failed one.
   need hot reload, not a Docker image build, data refresh, or deployment.
   Restore the baseline when testing an edited migration; keep it fixed during
   that repair. Preserve any local user edits before replacing the database.
+  This reuse is for active testing: stop the task's watchers and containers
+  once testing is finished, including after user acceptance. Verify shutdown
+  and record it in the handoff; CI, review and deployment do not need them.
 - Inspect metadata relationships before assuming a missing control is a browser
   timing problem. Old workspaces may retain legacy standard identifiers;
   fixture identifiers and default layouts are not evidence for their shape.
